@@ -7,4 +7,5 @@ The repository contains files which implements the paper: "Dynamic Multi Threat 
 Execution: $python Training.py
 
 Concole output: Results of training at 10 episode intervals to monitor progress
+
 File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective control of the AUV actions. 
