@@ -35,6 +35,7 @@ def _build_env(stage: dict) -> AuvEvasionEnv:
         n_torpedoes    = stage["torps"],
         min_spawn_dist = stage["dist"][0],
         max_spawn_dist = stage["dist"][1],
+        mode="testing"
     )
 
 
