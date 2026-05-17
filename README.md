@@ -4,8 +4,10 @@ The repository contains files which implements the paper: "Dynamic Multi Threat 
 2. PDQN_DS.py: This python files implements the DeepSets redefined PDQN which controls the RL agent such that intelligent actions of the AUV can be generated. The actions generated from this RL agent is used in Environment_PDQN_DS.py file for simulating the actions of the AUV. This file is also not directly executable and is a helper file. 
 3. Training_DS.py: This isthe executable file with the main function. The file controls the RL episodes by running the underwater environment simulation, observes and abstracts the state of the environment and calculates rewards. Since, we are using an Off-Policy RL algorithm, a replay buffer is used which is also populated. When appropriate, samples are taken from the replay buffer and the RL agent is trained.
 
-Execution: $python Training.py
+Execution: 
 
-Concole output: Results of training at 10 episode intervals to monitor progress
-
-File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective control of the AUV actions. 
+1. Download the files   
+2. cd to the folder at the location of the downloaded files
+3. Run $python Training_DS.py
+4. Console output: Results of training to monitor progress
+5. File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective control of the AUV actions.
