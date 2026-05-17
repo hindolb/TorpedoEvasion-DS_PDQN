@@ -15,8 +15,8 @@ Execution:
   a. Console output: Results of training to monitor progress
   b. File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective  control of the AUV actions.
 4. Run $python Expt-2.py
-   This can be executed using .pth files instead of running training scripts.    
-5. Console Output: Results of the experiments   
+   a. This execution requires the trained AI model saved in .pth files. The accompanying .pth files can also be used instead of running training scripts and generating them anew.    
+   b. Console Output: Results of the experiments    
 
 
 
