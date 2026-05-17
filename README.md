@@ -12,11 +12,11 @@ Execution:
 1. Download the files   
 2. cd to the folder at the location of the downloaded files
 3. Run $python Training_DS.py
-  a. Console output: Results of training to monitor progress
-  b. File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective  control of the AUV actions.
-4. Run $python Expt-2.py
-   a. This execution requires the trained AI model saved in .pth files. The accompanying .pth files can also be used instead of running training scripts and generating them anew.    
-   b. Console Output: Results of the experiments    
+4. Console output: Results of training to monitor progress
+5. File output: Trained model is saved at an interval of 100 episodes. At the end of training, the trained model is loaded which can be used for effective  control of the AUV actions.
+6. Run $python Expt-2.py
+7. This execution requires the trained AI model saved in .pth files. The accompanying .pth files can also be used instead of running training scripts and generating them anew.
+8. Console Output: Results of the experiments    
 
 
 
