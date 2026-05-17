@@ -23,9 +23,9 @@ STAGE_ADVANCE_EPSILON_BUMP = 0.25
 
 # ------------------------ Curriculum (Algorithm 1) ----------------------------
 CURRICULUM_STAGES = [
-    {"torps": 1, "dist": (1500.0, 2400.0), "target": 95.0},
-    {"torps": 2, "dist": (1500.0, 2400.0), "target": 75.0},
-    {"torps": 3, "dist": (1500.0, 2400.0), "target": 60.0},
+    {"torps": 1, "dist": (1500.0, 2400.0), "target": 90.0},
+    {"torps": 2, "dist": (1500.0, 2400.0), "target": 85.0},
+    {"torps": 3, "dist": (1500.0, 2400.0), "target": 75.0},
 ]
 
 
