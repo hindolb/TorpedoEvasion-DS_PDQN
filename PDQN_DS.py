@@ -7,7 +7,7 @@ import random
 from collections import deque
 
 # =============================================================================
-# 1. Deep Sets Encoder  (unchanged - architecture matches paper Section III-C)
+# 1. Deep Sets Encoder  
 # =============================================================================
 
 class DeepSetEncoder(nn.Module):
@@ -235,7 +235,7 @@ class PDQNAgent:
         self.param_dim    = param_dim      # 2  (speed, heading)
 
         # ------------------------------------------------------------------
-        # [CRITICAL-1] Separate Deep Sets encoders for actor and critic
+        # Separate Deep Sets encoders for actor and critic
         # ------------------------------------------------------------------
         self.actor_encoder        = DeepSetEncoder(state_dim).to(device)
         self.target_actor_encoder = DeepSetEncoder(state_dim).to(device)
@@ -246,7 +246,7 @@ class PDQNAgent:
         self.target_critic_encoder.load_state_dict(self.critic_encoder.state_dict())
 
         # ------------------------------------------------------------------
-        # [CRITICAL-2] ParamNet: K separate param vectors (Eq. 3)
+        # ParamNet: K separate param vectors (Eq. 3)
         # ------------------------------------------------------------------
         self.param_net        = ParamNet(param_dim=param_dim,
                                          num_discrete=num_discrete).to(device)
@@ -255,7 +255,7 @@ class PDQNAgent:
         self.target_param_net.load_state_dict(self.param_net.state_dict())
 
         # ------------------------------------------------------------------
-        # [CRITICAL-2] QNet: Q over d2 given d1's specific params (Eq. 4)
+        # QNet: Q over d2 given d1's specific params (Eq. 4)
         # ------------------------------------------------------------------
         self.q_net        = QNet(param_dim=param_dim,
                                   num_secondary=num_discrete).to(device)
@@ -264,8 +264,8 @@ class PDQNAgent:
         self.target_q_net.load_state_dict(self.q_net.state_dict())
 
         # ------------------------------------------------------------------
-        # [CRITICAL-1] Disjoint optimisers — actor loss cannot touch critic
-        #              weights and vice-versa.
+        # Disjoint optimisers — actor loss cannot touch critic
+        # weights and vice-versa.
         # ------------------------------------------------------------------
         self.actor_optimizer = optim.Adam(
             list(self.actor_encoder.parameters()) +
