@@ -68,11 +68,11 @@ class AuvEvasionEnv(gym.Env):
             self.seeker_range  = 3000.0
             self.N_gain        = 2.5
 
-        # [CRITICAL-A] Spawn distance range (used by reset)
+        # Spawn distance range (used by reset)
         self.min_spawn_dist = min_spawn_dist
         self.max_spawn_dist = max_spawn_dist
 
-        # Action space (matches PDQN_DS.py expectation)
+        # Action space 
         self.action_space = spaces.Tuple((
             spaces.MultiDiscrete([37, 37]),
             spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32),
@@ -111,7 +111,7 @@ class AuvEvasionEnv(gym.Env):
         self.ammo_hovering = self.MAX_HOVERING_DECOYS
         self.active_decoys = []
 
-        # Spawn torpedoes using the curriculum's distance range  [CRITICAL-A]
+        # Spawn torpedoes using the curriculum's distance range
         self.torpedoes = []
         for i in range(self.n):
             dist      = rng.uniform(self.min_spawn_dist, self.max_spawn_dist)
@@ -131,7 +131,7 @@ class AuvEvasionEnv(gym.Env):
                 'prev_xi': None, 'target_decoy_id': None,
             })
 
-        # Initial minimum distance (used to normalise R_dist  -- [CRITICAL-D])
+        # Initial minimum distance (used to normalise R_dist  
         active_torpedoes = [t for t in self.torpedoes if t['active']]
         if active_torpedoes:
             self.prev_min_distance = min(
@@ -140,7 +140,7 @@ class AuvEvasionEnv(gym.Env):
             )
         else:
             self.prev_min_distance = 0.0
-        self.initial_min_distance = self.prev_min_distance   # [CRITICAL-D]
+        self.initial_min_distance = self.prev_min_distance   
         self.current_min_distance = self.prev_min_distance
 
         # Reset memoised reward state
@@ -161,7 +161,7 @@ class AuvEvasionEnv(gym.Env):
         # ===== 1. AUV Kinematics =====
         current_vel   = self.auv_state[3]
         current_psi   = self.auv_state[8]
-        current_theta = self.auv_state[7]   # [CRITICAL-B] pitch is at idx 7, not 9
+        current_theta = self.auv_state[7] 
 
         accel_u  = np.clip(0.5 * (target_vel - current_vel), -self.MAX_ACCEL, self.MAX_ACCEL)
         diff_psi = (target_heading - current_psi + math.pi) % (2 * math.pi) - math.pi
@@ -343,7 +343,7 @@ class AuvEvasionEnv(gym.Env):
         info = {
             "hit":       hit_auv,
             "won":       all_destroyed,        # all torpedoes destroyed by decoys
-            "survived":  not hit_auv,          # [MINOR-E] AUV not hit (true survival)
+            "survived":  not hit_auv,          
             "torps_destroyed": torpedoes_destroyed,
         }
         return self._get_observation(), reward, termination, truncation, info
