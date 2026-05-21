@@ -71,8 +71,6 @@ def evaluate_model():
 
             # 4. Track Metrics
             survivals = 0
-            terminal_distances = []
-            pursuit_times = []
 
             # 5. Run Episodes
             for ep in range(episodes_per_scenario):
@@ -91,26 +89,11 @@ def evaluate_model():
                 # Record metrics based on outcome
                 if info.get("survived", False):
                     survivals += 1
-                    # Record the distance to the closest torpedo at the end of the episode
-                    terminal_distances.append(env.current_min_distance)
-                else:
-                    # Record the number of steps (seconds) it took for the AUV to be hit
-                    pursuit_times.append(env.current_step)
 
             # 6. Aggregate Statistics
             survival_rate = (survivals / episodes_per_scenario) * 100.0
-            
-            mean_dist = np.mean(terminal_distances) if terminal_distances else 0.0
-            std_dist = np.std(terminal_distances) if terminal_distances else 0.0
-            
-            mean_time = np.mean(pursuit_times) if pursuit_times else 0.0
-            std_time = np.std(pursuit_times) if pursuit_times else 0.0
-
-            # 7. Format Output to match tables
-            dist_str = f"{mean_dist:.0f} ± {std_dist:.0f}"
-            time_str = f"{mean_time:.1f} ± {std_time:.1f}"
-            
-            print(f"{n_torps:<7} | {survival_rate:>12.2f} % | {dist_str:>18} | {time_str:>18}")
+                    
+            print(f"{n_torps:<7} | {survival_rate:>12.2f} % ")
 
 if __name__ == "__main__":
     evaluate_model()
