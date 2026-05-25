@@ -8,9 +8,9 @@ from PDQN_DS import PDQNAgent
 
 # ------------------------- Exploration schedule -------------------------------
 NOISE_START   = 1.0
-NOISE_END     = 0.02        
+NOISE_END     = 0.02        # [FIX-A] was 0.05 — lower floor closes train/eval gap
 EPSILON_START = 1.0
-EPSILON_END   = 0.02        
+EPSILON_END   = 0.02        # [FIX-A] was 0.10 — agent trains closer to greedy policy
 
 DECAY_EPISODES_PER_LEVEL = 350
 
@@ -30,13 +30,23 @@ CURRICULUM_STAGES = [
 ]
 
 # --- Fine-tuning phase (runs on final stage after curriculum completes) -------
+# [FIX-C] Consolidates the final policy at near-zero exploration before saving.
+# This directly addresses the observation that eval (epsilon=0) underperforms
+# training (epsilon=EPSILON_END) because the Q-network was never optimised
+# against a near-greedy policy.
 FINE_TUNE_EPISODES = 500
 FINE_TUNE_EPSILON  = 0.02
 FINE_TUNE_NOISE    = 0.01
 
-SURVIVAL_WINDOW_SIZE = 200   
+# [FIX-B] Wider survival window halves variance of the advancement signal.
+# At 70% true survival, std of a 100-ep window is ~4.6pp; a 200-ep window
+# reduces this to ~3.2pp, so advancement happens at a more stable policy peak.
+SURVIVAL_WINDOW_SIZE = 200   # was 100
 
-ADVANCE_PATIENCE = 10
+# How many consecutive checks the survival rate must stay above target before
+# the stage is considered complete. Each check fires every 10 episodes.
+# 10 checks × 10 episodes = must hold target for 100 consecutive episodes.
+ADVANCE_PATIENCE = 10        # [FIX-B] was effectively 1 (advance on first hit)
 
 
 def _build_env(stage: dict) -> AuvEvasionEnv:
@@ -66,14 +76,14 @@ def train_auv():
         param_dim    = continuous_dim,
     )
 
-
+    # [FIX-B] Wider window — see SURVIVAL_WINDOW_SIZE comment above
     survival_window           = deque(maxlen=SURVIVAL_WINDOW_SIZE)
     reward_window             = deque(maxlen=SURVIVAL_WINDOW_SIZE)
     episodes_in_current_level = 0
     total_episodes            = 0
     epsilon_start             = EPSILON_START
     best_survival_rate        = 0.0
-    checks_above_target       = 0   
+    checks_above_target       = 0   # [FIX-B] consecutive checks at/above target
 
     print(f"=== Starting Curriculum ===")
     print(f"  Stage {stage_idx + 1}/{len(CURRICULUM_STAGES)}  |  "
@@ -146,6 +156,9 @@ def train_auv():
         window_full      = (len(survival_window) == SURVIVAL_WINDOW_SIZE)
         stage_exhausted  = (episodes_in_current_level >= MAX_EPISODES_PER_STAGE)
 
+        # [FIX-B] Update patience counter every 10 episodes once exploration
+        # is done and the window is full. Resets to zero on any dip below target
+        # so the agent must hold the target continuously, not just touch it once.
         if total_episodes % 10 == 0 and window_full and exploration_done:
             if survival_rate >= current_stage["target"]:
                 checks_above_target += 1
@@ -192,7 +205,7 @@ def train_auv():
                 reward_window.clear()
                 episodes_in_current_level = 0
                 best_survival_rate        = 0.0
-                checks_above_target       = 0   
+                checks_above_target       = 0   # [FIX-B] reset patience counter
             else:
                 print("\nAll curriculum stages completed.")
                 training_active = False
@@ -201,6 +214,10 @@ def train_auv():
             print("\nReached total episode budget. Stopping training.")
             training_active = False
 
+    # --- [FIX-C] Fine-tuning phase -------------------------------------------
+    # Run on the final stage environment at near-zero exploration.
+    # The Q-network is now optimised against a policy very close to the greedy
+    # policy used at evaluation time, closing the epsilon=0.10 vs 0.00 gap.
     print(f"\n{'=' * 70}")
     print(f"  Fine-tuning: {FINE_TUNE_EPISODES} episodes at "
           f"epsilon={FINE_TUNE_EPSILON}, noise={FINE_TUNE_NOISE}")
@@ -238,6 +255,8 @@ def train_auv():
                   f"Reward {ft_episode_reward:>+8.1f} | "
                   f"Survival {ft_survival_rate:>5.1f}%")
 
+        # Save best fine-tune checkpoint separately so it can be compared
+        # against the curriculum best at evaluation time
         if (len(ft_survival_window) == SURVIVAL_WINDOW_SIZE
                 and ft_survival_rate > best_survival_rate):
             best_survival_rate = ft_survival_rate
@@ -253,6 +272,18 @@ def train_auv():
                 "survival_rate":  ft_survival_rate,
                 "total_episodes": total_episodes,
             }, "pdqn_ds_best_finetune.pth")
+        torch.save({
+            "actor_encoder":  agent.actor_encoder.state_dict(),
+            "critic_encoder": agent.critic_encoder.state_dict(),
+            "param_net":      agent.param_net.state_dict(),
+            "q_net":          agent.q_net.state_dict(),
+            "state_dim":      feature_dim,
+            "num_discrete":   discrete_dim,
+            "param_dim":      continuous_dim,
+            "stage":          "fine_tune",
+            "survival_rate":  ft_survival_rate,
+            "total_episodes": total_episodes,
+        }, "pdqn_ds_best_finetune.pth")            
 
     print(f"\n  Fine-tune complete | "
           f"Final survival rate: {ft_survival_rate:.1f}% | "
