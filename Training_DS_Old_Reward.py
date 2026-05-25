@@ -272,19 +272,7 @@ def train_auv():
                 "survival_rate":  ft_survival_rate,
                 "total_episodes": total_episodes,
             }, "pdqn_ds_best_finetune.pth")
-        torch.save({
-            "actor_encoder":  agent.actor_encoder.state_dict(),
-            "critic_encoder": agent.critic_encoder.state_dict(),
-            "param_net":      agent.param_net.state_dict(),
-            "q_net":          agent.q_net.state_dict(),
-            "state_dim":      feature_dim,
-            "num_discrete":   discrete_dim,
-            "param_dim":      continuous_dim,
-            "stage":          "fine_tune",
-            "survival_rate":  ft_survival_rate,
-            "total_episodes": total_episodes,
-        }, "pdqn_ds_best_finetune.pth")            
-
+                    
     print(f"\n  Fine-tune complete | "
           f"Final survival rate: {ft_survival_rate:.1f}% | "
           f"Best: {best_survival_rate:.1f}%")
